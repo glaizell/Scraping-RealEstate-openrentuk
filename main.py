@@ -17,7 +17,22 @@ random_user_agent = ua.random
 # Keep the browser open after the program finishes
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("detach", True)
-chrome_options.add_argument(random_user_agent)
+from selenium import webdriver
+from fake_useragent import UserAgent
+
+
+ua = UserAgent(os='linux', browsers=['edge', 'chrome'], min_percentage=1.3)
+random_user_agent = ua.random
+
+# Keep the browser open after the program finishes
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_experimental_option("detach", True)
+chrome_options.add_argument(f"user-agent={random_user_agent}")
+
+driver = webdriver.Chrome(options=chrome_options)
+driver.get("https://www.amazon.com/")
+
+
 
 driver = webdriver.Chrome(options=chrome_options)
 
