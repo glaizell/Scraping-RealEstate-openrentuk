@@ -5,36 +5,21 @@ from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 import re
 import time
 import pandas as pd
 
-
-
 ua = UserAgent(os='linux', browsers=['edge', 'chrome'], min_percentage=1.3)
 random_user_agent = ua.random
 
 # Keep the browser open after the program finishes
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_experimental_option("detach", True)
-from selenium import webdriver
-from fake_useragent import UserAgent
-
-
-ua = UserAgent(os='linux', browsers=['edge', 'chrome'], min_percentage=1.3)
-random_user_agent = ua.random
-
-# Keep the browser open after the program finishes
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_experimental_option("detach", True)
-chrome_options.add_argument(f"user-agent={random_user_agent}")
-
-driver = webdriver.Chrome(options=chrome_options)
-driver.get("https://www.amazon.com/")
-
-
-
-driver = webdriver.Chrome(options=chrome_options)
+options = Options()
+options.add_experimental_option("detach", True)
+options.add_argument(f"user-agent={random_user_agent}")
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 url = ("https://www.openrent.co.uk/properties-to-rent/london?term=London.&area=20&prices_min=1000&prices_max=2000"
        "&bedrooms_min=0&bedrooms_max=2&viewingProperty=2")
@@ -55,7 +40,6 @@ except TimeoutException as e:
 
 # Now that the page has loaded, you can proceed to parse it
 soup = BeautifulSoup(driver.page_source, "lxml")
-
 
 ## Initialize the previous page height
 prev_page_height = 0
@@ -100,7 +84,6 @@ while True:
                 value = int(match.group(1))
                 unit = match.group(2)
 
-
                 # Check if value is within the desired range and unit is either "hour", "minute", or "day", and adjust the plural form
                 if value is not None and unit in ["hour", "minute", "day"]:
                     if unit == "day" and 0 < value <= 1:
@@ -137,19 +120,15 @@ while True:
                         }
                         scraped_data.append(data)
 
-
-
 # Create a DataFrame from the list of dictionaries
-df = pd.DataFrame(scraped_data, columns=["Title", "Price", "Furnishing", "Price", "Last Updated", "URL"], index=range(1, len(scraped_data) + 1))
+df = pd.DataFrame(scraped_data, columns=["Title", "Price", "Furnishing", "Price", "Last Updated", "URL"],
+                  index=range(1, len(scraped_data) + 1))
 
 # Print the DataFrame
 print(df)
 
-
-
-
 print("Before saving CSV")
 # Save the DataFrame to a CSV file
-df.to_csv("scraped_data3.csv", index_label="No")
+df.to_csv("scraped_data2.csv", index_label="No")
 print("After saving CSV")
 driver.quit()
